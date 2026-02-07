@@ -12,7 +12,7 @@ EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
 # --- LLM Provider ---
 LLM_PROVIDER = "groq"
-GROQ_MODEL = "llama3-8b-8192"
+GROQ_MODEL = "llama-3.3-70b-versatile"
 LLM_TIMEOUT = 60
 
-TOP_K = 6
+TOP_K = 3

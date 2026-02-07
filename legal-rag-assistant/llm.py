@@ -6,22 +6,34 @@ from config import GROQ_MODEL
 # -----------------------------
 # BUILD CONTEXT
 # -----------------------------
-def build_compact_context(chunks, max_chars=3000):
+def build_compact_context(chunks, max_chars=1800):
+    """
+    We aggressively compress context because legal sections are long.
+    Prioritize first sections (most relevant FAISS matches).
+    """
+
     context_parts = []
     total = 0
 
     for c in chunks:
         text = c["text"].strip()
-        if not text:
-            continue
+
+        # remove excessive whitespace
+        text = " ".join(text.split())
+
+        # keep only first 600 chars of each section
+        text = text[:600]
 
         if total + len(text) > max_chars:
             break
 
-        context_parts.append(text)
+        context_parts.append(
+            f"{c['act_name']} - Section {c['section_number']}:\n{text}"
+        )
         total += len(text)
 
     return "\n\n".join(context_parts)
+
 
 
 # -----------------------------
