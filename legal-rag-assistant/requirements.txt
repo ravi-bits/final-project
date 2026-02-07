@@ -1,4 +1,7 @@
 streamlit
-sentence-transformers
 faiss-cpu
 tiktoken
+sentence-transformers
+numpy
+groq
+requests

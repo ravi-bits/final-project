@@ -1,6 +1,11 @@
-import requests
-from config import OLLAMA_MODEL, OLLAMA_URL, LLM_TIMEOUT
+import os
+from groq import Groq
+import streamlit as st
+from config import GROQ_MODEL
 
+# -----------------------------
+# BUILD CONTEXT
+# -----------------------------
 def build_compact_context(chunks, max_chars=3000):
     context_parts = []
     total = 0
@@ -19,9 +24,11 @@ def build_compact_context(chunks, max_chars=3000):
     return "\n\n".join(context_parts)
 
 
-
-
+# -----------------------------
+# GENERATE ANSWER (GROQ LLM)
+# -----------------------------
 def generate_answer(query, chunks):
+
     if not chunks:
         return "No directly relevant statutory provision was found for this query."
 
@@ -41,7 +48,7 @@ STRICT RULES (DO NOT VIOLATE):
 7. Use formal legal language.
 8. Quote the relevant Act name and Section number where applicable.
 
-STATUTORY TEXT (SOURCE OF TRUTH):
+STATUTORY TEXT:
 {context}
 
 Question:
@@ -50,14 +57,15 @@ Question:
 Answer:
 """
 
-    response = requests.post(
-        OLLAMA_URL,
-        json={
-            "model": OLLAMA_MODEL,
-            "prompt": prompt,
-            "stream": False
-        },
-        timeout=LLM_TIMEOUT
+    client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+
+    response = client.chat.completions.create(
+        model=GROQ_MODEL,
+        messages=[
+            {"role": "system", "content": "You are a strict statutory legal assistant."},
+            {"role": "user", "content": prompt},
+        ],
+        temperature=0.0
     )
 
-    return response.json().get("response", "").strip()
+    return response.choices[0].message.content.strip()
